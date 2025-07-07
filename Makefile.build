@@ -1,0 +1,53 @@
+SRCS:=$(filter %.o, $(obj-y))
+DIRS:=$(filter %/, $(obj-y))
+MSRCS:=$(filter %.o, $(obj-m))
+MDIRS:=$(filter %/, $(obj-m))
+
+CMSRCS:=$(foreach m,$(obj-m), $(if $($(m:.o=-m)), $(m)))
+MODNAME:=$(CMSRCS)
+MSRCS:=$(filter-out $(CMSRCS),$(MSRCS))
+CMSRCS:=$(foreach m,$(obj-m), $(if $(m:.o=-m), $($(m:.o=-m))))
+MSRCS+=$(CMSRCS)
+
+CSRCS:=$(foreach m,$(obj-y), $(if $($(m:.o=-y)), $(m)))
+SRCS:=$(filter-out $(CSRCS),$(SRCS))
+CSRCS:=$(foreach m,$(obj-y), $(if $(m:.o=-y), $($(m:.o=-y))))
+SRCS+=$(CSRCS)
+
+GCC = gcc
+LD = ld
+MAKE = make
+CFLAGS = -Wall -O2
+
+.PHONY: pre clean
+
+all: pre build
+
+pre: $(DIRS) $(MDIRS)
+	
+$(DIRS): Makefile
+	$(MAKE) -C $@ -f Makefile -f $(ROOTPATH)/Makefile.build objs=$@
+	
+$(MDIRS): Makefile
+	$(MAKE) -C $@ -f Makefile -f $(ROOTPATH)/Makefile.build objs=$@
+
+build: mod build-in.o
+
+mod: $(MSRCS)
+ifneq ($(strip $(MSRCS)), )
+	$(if $(MODNAME),$(LD) -r -o $(MODNAME:.o=).ko $^)
+endif
+
+build-in.o: $(SRCS) $(patsubst %/, %/build-in.o, $(DIRS))
+ifneq ($(strip $(SRCS)), )
+	$(LD) -r -o $@ $^
+endif
+
+%.o: %.c
+	$(GCC) $(CFLAGS) -c $<
+	
+clean:
+	del /S *.o
+	
+#$(DIRS)clean:
+#	make -C $(DIRS) -f Makefile -f $(ROOTPATH)/Makefile.build clean
