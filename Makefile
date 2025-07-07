@@ -1,17 +1,18 @@
 ############################################################################
 #
-# The Main Makefile for compile
+# The Main Makefile for building
 #
 ############################################################################
 
 #Target application name
 TARGET	:=app
 
-#Source file Directory
+#Source file directory
 SRCS 	:= dev/ gpio/ kernel/
 
 #Root path for all Makefile
 export ROOTPATH=$(shell cd)
+export INCLUDE=$(shell cd)/include
 
 .PHONY: all pre clean auto
 

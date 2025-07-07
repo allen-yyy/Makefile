@@ -44,7 +44,7 @@ ifneq ($(strip $(SRCS)), )
 endif
 
 %.o: %.c
-	$(GCC) $(CFLAGS) -c $<
+	$(GCC) $(CFLAGS) -I $(INCLUDE) -c $<
 	
 clean:
 	del /S *.o
