@@ -34,11 +34,9 @@ You can modify  `mod`  , `build-in.o`  ,  `%.o`  to adapt to your project.
 
 **For Makefiles in subdirectories that you want to build as a module:**
 
-`obj-m`  for the module's name + .o ( e.g. pci.o) .
+`obj-m`  for the modules' names + .o ( e.g. pci.o pcie.o) , or the the module's source file (For the module that only has one source file) .
 
-`name-y`  for the module's source files (*.o) ( e.g. pci-y) .
-
-Each subdirectory that you want to build as a module should only consist of one module.
+`name-y`  for the module's source files (*.o) ( e.g. pci-y)  and directories, the module's name must match.
 
 Usage
 =======

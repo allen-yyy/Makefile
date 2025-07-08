@@ -5,9 +5,11 @@ MDIRS:=$(filter %/, $(obj-m))
 
 CMSRCS:=$(foreach m,$(obj-m), $(if $($(m:.o=-m)), $(m)))
 MODNAME:=$(CMSRCS)
+MSDIRS:=$(foreach MOD,$(MODNAME), $(filter %/, $($(MOD:.o=-m))))
+DIRS+=$(MSDIRS)
 MSRCS:=$(filter-out $(CMSRCS),$(MSRCS))
-CMSRCS:=$(foreach m,$(obj-m), $(if $(m:.o=-m), $($(m:.o=-m))))
-MSRCS+=$(CMSRCS)
+#CMSRCS:=$(foreach m,$(obj-m), $(if $(m:.o=-m), $($(m:.o=-m))))
+#MSRCS+=$(CMSRCS)
 
 CSRCS:=$(foreach m,$(obj-y), $(if $($(m:.o=-y)), $(m)))
 SRCS:=$(filter-out $(CSRCS),$(SRCS))
@@ -33,10 +35,10 @@ $(MDIRS): Makefile
 
 build: mod build-in.o
 
-mod: $(MSRCS)
-ifneq ($(strip $(MSRCS)), )
-	$(if $(MODNAME),$(LD) -r -o $(MODNAME:.o=).ko $^)
-endif
+mod: $(MSRCS) $(patsubst %/, %/build-in.o, $(MSDIRS))
+	$(foreach MOD,$(MODNAME),$(LD) -r -o $(MOD:.o=).ko $(filter %.o, $($(MOD:.o=-m))) $(patsubst %/, %/build-in.o,$(filter %/, $($(MOD:.o=-m)))) && ) @echo off
+	$(foreach MOD,$(MSRCS),$(LD) -r -o $(MOD:.o=).ko $(MOD) && ) @echo off
+#	$(if $(MODNAME),$(LD) -r -o $(MODNAME:.o=).ko $^)
 
 build-in.o: $(SRCS) $(patsubst %/, %/build-in.o, $(DIRS))
 ifneq ($(strip $(SRCS)), )
